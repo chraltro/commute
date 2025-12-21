@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oslo Commute Time Optimizer</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚗 Oslo Commute Time Optimizer</h1>
+            <p class="subtitle">Find the best time to drive to work</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('analyze')">Analyze Commute</button>
+            <button class="tab-button" onclick="showTab('settings')">DATEX Settings</button>
+        </div>
+
+        <!-- Analyze Tab -->
+        <div id="analyzeTab" class="tab-content active">
+            <div class="card">
+                <h2>Route Information</h2>
+                <form id="analyzeForm">
+                    <div class="form-group">
+                        <label for="home">Home Address:</label>
+                        <input type="text" id="home" name="home"
+                               placeholder="e.g., Grønland, Oslo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="work">Work Address:</label>
+                        <input type="text" id="work" name="work"
+                               placeholder="e.g., Aker Brygge, Oslo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="day">Day of Week:</label>
+                        <select id="day" name="day" required>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday" selected>Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Data Source:</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="mode" value="google" checked>
+                                Google Maps (Immediate results)
+                            </label>
+                            <label>
+                                <input type="radio" name="mode" value="datex">
+                                DATEX Collected Data (Free, requires setup)
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Analyze Commute</button>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="card" style="display: none;">
+                <h2>Results</h2>
+
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+                <div id="summaryCards" class="summary-cards">
+                    <div class="summary-card best">
+                        <h3>Best Time</h3>
+                        <div class="time" id="bestTime">--:--</div>
+                        <div class="duration" id="bestDuration">-- min</div>
+                    </div>
+
+                    <div class="summary-card worst">
+                        <h3>Worst Time</h3>
+                        <div class="time" id="worstTime">--:--</div>
+                        <div class="duration" id="worstDuration">-- min</div>
+                    </div>
+
+                    <div class="summary-card difference">
+                        <h3>Time Saved</h3>
+                        <div class="difference-value" id="differenceValue">-- min</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Travel Time Throughout Morning (06:00 - 10:00)</h3>
+                    <canvas id="travelTimeChart"></canvas>
+                </div>
+
+                <div id="metadata" class="metadata"></div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analyzing commute times...</p>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settingsTab" class="tab-content">
+            <div class="card">
+                <h2>DATEX Collection Status</h2>
+                <div id="collectionStatus">
+                    <p>Loading status...</p>
+                </div>
+                <div class="button-group">
+                    <button onclick="startCollection()" class="btn-success">Start Collection</button>
+                    <button onclick="stopCollection()" class="btn-danger">Stop Collection</button>
+                    <button onclick="refreshStatus()" class="btn-secondary">Refresh Status</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Initialize DATEX Segments</h2>
+                <p>Run this once to fetch available road segments from Statens vegvesen.</p>
+                <button onclick="initializeSegments()" class="btn-primary">Initialize Segments</button>
+                <div id="initMessage" style="margin-top: 10px;"></div>
+            </div>
+
+            <div class="card">
+                <h2>Select Route Segments</h2>
+                <p>Choose which DATEX segments approximate your commute route.</p>
+                <div id="segmentList">
+                    <p>Loading segments...</p>
+                </div>
+                <button onclick="saveSegments()" class="btn-primary">Save Selection</button>
+            </div>
+
+            <div class="card">
+                <h2>Data Quality</h2>
+                <div id="dataQuality">
+                    <p>Loading quality stats...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
