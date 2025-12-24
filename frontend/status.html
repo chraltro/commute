@@ -1,0 +1,36 @@
+<!-- System Status Tab Content (to be added to index.html) -->
+<div id="statusTab" class="tab-content">
+    <div class="card">
+        <h2>System Health</h2>
+        <div id="systemHealth">
+            <p>Loading system health...</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Configuration</h2>
+        <div id="systemConfig">
+            <p>Loading configuration...</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Scheduler Status</h2>
+        <div id="schedulerStatus">
+            <p>Loading scheduler status...</p>
+        </div>
+        <div class="button-group" style="margin-top: 15px;">
+            <button onclick="triggerCollectionNow()" class="btn-primary">Run Collection Now</button>
+            <button onclick="refreshSystemStatus()" class="btn-secondary">Refresh</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Quick Actions</h2>
+        <div class="button-group">
+            <button onclick="viewApiDocs()" class="btn-primary">View API Documentation</button>
+            <button onclick="seedDemoData()" class="btn-secondary">Seed Demo Data</button>
+        </div>
+        <div id="actionMessage" style="margin-top: 15px;"></div>
+    </div>
+</div>

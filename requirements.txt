@@ -16,3 +16,6 @@ python-dotenv==1.0.0
 
 # Background Task Scheduling (optional, for advanced scheduling)
 apscheduler==3.10.4
+
+# System Monitoring (optional, for system stats)
+psutil==5.9.6

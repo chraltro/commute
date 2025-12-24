@@ -1,288 +1,372 @@
 # Oslo Commute Time Optimizer
 
-A personal web application to find the best and worst times to drive to work in Oslo, Norway. Analyze your commute using either Google Maps predictions or self-collected data from Norway's free DATEX traffic system.
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
+[![Python](https://img.shields.io/badge/python-3.8+-green.svg)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-teal.svg)](https://fastapi.tiangolo.com)
+[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](Dockerfile)
 
-## Features
+A production-ready web application to find the best and worst times to drive to work in Oslo, Norway. Analyze your commute using either Google Maps predictions or self-collected data from Norway's free DATEX traffic system.
 
-- **Two Data Sources:**
-  - **Google Maps Mode:** Instant results using Google Maps Directions API with traffic predictions
-  - **DATEX Mode:** Free, self-collected data from Statens vegvesen (Norwegian Public Roads Administration)
+## ✨ Features
 
-- **Visual Analysis:** Beautiful charts showing travel times throughout the morning (06:00-10:00)
-- **Best/Worst Times:** Clear identification of optimal and worst departure times
-- **Background Collection:** Automated DATEX data polling every 5 minutes
-- **Data Quality Tracking:** Monitor collection status and data reliability
+### Core Functionality
+- **Dual Data Sources:**
+  - **Google Maps Mode:** Instant results using traffic predictions API
+  - **DATEX Mode:** Free self-collected data from Statens vegvesen
+- **Visual Analysis:** Beautiful Chart.js visualizations of travel times (06:00-10:00)
+- **Smart Insights:** Best/worst time identification with time savings calculation
+- **Background Collection:** Automated DATEX polling with APScheduler
+- **Data Quality Tracking:** Real-time monitoring and readiness indicators
 
-## Screenshots
+### Version 2.0 Enhancements 🚀
+- **📝 Configuration Management:** Centralized config with environment variables
+- **🔄 Advanced Scheduling:** APScheduler-based collection with retry logic
+- **📊 System Monitoring:** CPU, memory, disk, and database statistics
+- **🐳 Docker Support:** Production-ready containerization
+- **📚 API Documentation:** Interactive Swagger UI and ReDoc
+- **🧪 Demo Mode:** Test with realistic data (no API keys required)
+- **📈 Enhanced Logging:** Structured logging with file rotation
+- **⚡ Health Checks:** Comprehensive status endpoints
 
-The app provides:
-- Simple input form for home/work addresses and day selection
-- Summary cards showing best time, worst time, and potential time savings
-- Interactive line chart visualizing travel times throughout the morning
-- Settings interface for DATEX segment selection and collection management
+## 🚀 Quick Start
 
-## Prerequisites
+### Option 1: Docker (Recommended)
 
-- Python 3.8 or higher
-- (Optional) Google Maps API key for instant predictions
-- (Optional) DATEX credentials for free data collection
+```bash
+# Clone repository
+git clone <repository-url>
+cd commute-optimizer
 
-## Installation
+# Create .env file
+cp .env.example .env
+# Edit .env with your API keys (optional for demo)
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd commute-optimizer
-   ```
+# Start with Docker Compose
+docker-compose up -d
 
-2. **Install Python dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+# Access the application
+open http://localhost:8000
+```
 
-3. **Set up environment variables:**
-   ```bash
-   cp .env.example .env
-   ```
+### Option 2: Python (Local Development)
 
-   Edit `.env` and add your API keys (see Configuration section below).
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-4. **Initialize the database:**
-   The database will be automatically created when you first run the application.
+# Run with demo data (no API keys needed)
+python backend/demo_data.py --seed 21
+./run.sh
 
-## Configuration
+# Access the application
+open http://localhost:8000
+```
 
-### Google Maps API (Optional - for instant results)
+### Option 3: Try Demo Mode First
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing one
-3. Enable the **Directions API**
-4. Create an API key
-5. Add the key to `.env`:
-   ```
-   GOOGLE_MAPS_API_KEY=your_api_key_here
-   ```
+```bash
+# Seed 3 weeks of realistic demo data
+python backend/demo_data.py --seed 21
 
-**Note:** Google Maps requires a credit card on file but provides $200/month free credit (approximately 40,000 Directions API calls).
+# Start the application
+./run.sh
 
-### DATEX API (Optional - for free data collection)
+# Use DATEX mode in the web UI (works without API keys!)
+```
 
-1. Register at [Statens vegvesen DATEX](https://www.vegvesen.no/trafikkdata/datex/)
-2. Wait 1-2 business days to receive credentials via email
-3. Add credentials to `.env`:
-   ```
-   DATEX_USERNAME=your_username_here
-   DATEX_PASSWORD=your_password_here
-   ```
+## 📖 Documentation
 
-**Note:** DATEX is completely free but requires 2-3 weeks of data collection for reliable results.
+- **[Deployment Guide](DEPLOYMENT.md)** - Production deployment, systemd, nginx setup
+- **[Changelog](CHANGELOG.md)** - Version history and release notes
+- **[API Documentation](http://localhost:8000/docs)** - Interactive API docs (when running)
 
-## Running the Application
+## 🔧 Configuration
 
-1. **Start the backend server:**
-   ```bash
-   cd backend
-   python main.py
-   ```
+### Minimal Setup (.env)
 
-   The server will start on `http://localhost:8000`
+```bash
+# Required: At least one data source
+GOOGLE_MAPS_API_KEY=your_key_here        # For instant predictions
+# OR
+DATEX_USERNAME=your_username             # For free data collection
+DATEX_PASSWORD=your_password
+```
 
-2. **Open your browser:**
-   Navigate to `http://localhost:8000`
+### Advanced Configuration
 
-3. **You're ready to go!**
+```bash
+# Server
+HOST=0.0.0.0
+PORT=8000
+DEBUG=false
+LOG_LEVEL=INFO
+LOG_FILE=/var/log/commute-optimizer.log
 
-## Usage Guide
+# DATEX Collection
+DATEX_POLL_INTERVAL_SECONDS=300          # Poll every 5 minutes
+DATEX_AUTO_START=true                    # Auto-start collection on startup
 
-### Quick Start with Google Maps
+# Analysis
+ANALYSIS_START_HOUR=6                    # Morning start time
+ANALYSIS_END_HOUR=10                     # Morning end time
+ANALYSIS_INTERVAL_MINUTES=15             # Query interval
 
-1. Go to the "Analyze Commute" tab
-2. Enter your home address (e.g., "Grønland, Oslo")
-3. Enter your work address (e.g., "Aker Brygge, Oslo")
-4. Select a day of the week
-5. Choose "Google Maps" as the data source
-6. Click "Analyze Commute"
-7. Results appear instantly!
+# See .env.example for all options
+```
 
-### Setting Up DATEX Collection
-
-DATEX mode requires initial setup and 2-3 weeks of data collection:
-
-1. **Initialize Segments:**
-   - Go to "DATEX Settings" tab
-   - Click "Initialize Segments" to fetch available road segments
-   - This only needs to be done once
-
-2. **Select Your Route Segments:**
-   - Browse the list of Oslo-area road segments
-   - Select segments that approximate your commute route
-   - Click "Save Selection"
-
-3. **Start Data Collection:**
-   - Click "Start Collection" to begin background polling
-   - Data is collected every 5 minutes automatically
-   - Leave the application running or set up as a service
-
-4. **Wait for Data:**
-   - After 2-3 weeks, you'll have reliable patterns
-   - Check "Data Quality" to see collection progress
-
-5. **Analyze with Collected Data:**
-   - Go to "Analyze Commute" tab
-   - Select "DATEX Collected Data" as the data source
-   - No need to enter addresses (uses your selected segments)
-   - Click "Analyze Commute"
-
-## File Structure
+## 🏗️ Architecture
 
 ```
 commute-optimizer/
-├── backend/
-│   ├── main.py              # FastAPI application and endpoints
-│   ├── google_maps.py       # Google Maps API integration
-│   ├── datex_client.py      # DATEX API client
-│   ├── datex_collector.py   # Background data collection
-│   ├── datex_analyzer.py    # Data aggregation and analysis
-│   └── database.py          # SQLite database operations
-├── frontend/
-│   ├── index.html           # Main HTML interface
-│   ├── app.js               # JavaScript functionality
-│   └── style.css            # Styling
-├── data/
-│   └── commute.db           # SQLite database (auto-created)
-├── .env                     # Your environment variables (create from .env.example)
-├── .env.example             # Environment variables template
-├── requirements.txt         # Python dependencies
-└── README.md               # This file
+├── backend/                    # Python backend
+│   ├── main.py                # FastAPI application (v2.0)
+│   ├── config.py              # Configuration management
+│   ├── logging_config.py      # Logging setup
+│   ├── scheduler.py           # APScheduler-based collection
+│   ├── database.py            # SQLite operations
+│   ├── google_maps.py         # Google Maps integration
+│   ├── datex_client.py        # DATEX API client
+│   ├── datex_analyzer.py      # Data analysis
+│   ├── demo_data.py           # Demo data generator
+│   └── system_status.py       # Health monitoring
+├── frontend/                   # HTML/CSS/JS frontend
+│   ├── index.html
+│   ├── app.js
+│   └── style.css
+├── data/                       # SQLite database (auto-created)
+├── Dockerfile                  # Docker image
+├── docker-compose.yml          # Docker Compose config
+├── requirements.txt            # Python dependencies
+├── .env.example               # Environment variables template
+├── DEPLOYMENT.md              # Deployment guide
+└── CHANGELOG.md               # Version history
 ```
 
-## API Endpoints
+## 🎯 Usage
 
-The backend provides the following REST API endpoints:
+### Web Interface
 
-### Analysis
-- `POST /api/analyze` - Analyze commute times
-  - Body: `{ home, work, day, mode }`
-  - Returns: Best/worst times and full timeline
+1. **Analyze Commute Tab:**
+   - Enter home and work addresses
+   - Select day of week
+   - Choose Google Maps or DATEX mode
+   - Click "Analyze Commute"
 
-### DATEX Management
-- `GET /api/datex/status` - Get collection status
-- `POST /api/datex/collection` - Start/stop collection
-  - Body: `{ action: "start" | "stop" }`
-- `GET /api/datex/segments/available` - Get available segments
-- `POST /api/datex/segments` - Set selected segments
-  - Body: `{ segment_ids: ["id1", "id2", ...] }`
-- `POST /api/datex/initialize-segments` - Fetch segments from API
-- `GET /api/datex/quality` - Get data quality statistics
+2. **DATEX Settings Tab:**
+   - Initialize segments (one-time setup)
+   - Select route segments
+   - Start/stop data collection
+   - Monitor data quality
 
-### Health
-- `GET /api/health` - Health check and configuration status
+### API Endpoints
 
-## Running as a Background Service
-
-To keep DATEX collection running continuously, you can set up the application as a systemd service (Linux) or use a process manager like PM2.
-
-### Using systemd (Linux)
-
-Create a service file at `/etc/systemd/system/commute-optimizer.service`:
-
-```ini
-[Unit]
-Description=Oslo Commute Time Optimizer
-After=network.target
-
-[Service]
-Type=simple
-User=your_username
-WorkingDirectory=/path/to/commute-optimizer/backend
-Environment="PATH=/path/to/your/venv/bin"
-ExecStart=/path/to/your/venv/bin/python main.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Then:
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable commute-optimizer
-sudo systemctl start commute-optimizer
+# Analyze commute
+curl -X POST http://localhost:8000/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"home":"Grønland, Oslo","work":"Aker Brygge, Oslo","day":"Friday","mode":"google"}'
+
+# Get health status
+curl http://localhost:8000/api/health
+
+# View API documentation
+open http://localhost:8000/docs
 ```
 
-## Troubleshooting
+### Demo Data
 
-### Google Maps API Issues
+```bash
+# Generate demo data (21 days)
+python backend/demo_data.py --seed 21
 
-**"GOOGLE_MAPS_API_KEY environment variable not set"**
-- Make sure you created `.env` file from `.env.example`
-- Verify the API key is correctly set in `.env`
-- Restart the backend server after changing `.env`
+# Generate more data (30 days)
+python backend/demo_data.py --seed 30
 
-**"API key not configured or invalid"**
-- Check that the Directions API is enabled in Google Cloud Console
-- Verify the API key has no restrictions that block localhost
-- Check your Google Cloud billing is set up
+# Generate demo response (testing)
+python backend/demo_data.py --demo-response
+```
 
-### DATEX Issues
+## 🔍 API Documentation
 
-**"DATEX credentials not configured or invalid"**
-- Verify `DATEX_USERNAME` and `DATEX_PASSWORD` in `.env`
-- Registration can take 1-2 business days
-- Test credentials by clicking "Initialize Segments"
+Interactive API documentation available at:
+- **Swagger UI:** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
 
-**"Insufficient data for analysis"**
-- DATEX mode requires 2-3 weeks of continuous data collection
-- Check that collection is running in DATEX Settings
-- Verify selected segments are receiving data in Data Quality section
+### Key Endpoints
 
-**"No segments available"**
-- Click "Initialize Segments" in DATEX Settings
-- Requires valid DATEX credentials
-- Only Oslo-area segments are shown by default
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/analyze` | POST | Analyze commute times |
+| `/api/health` | GET | Health check |
+| `/api/config` | GET | Configuration summary |
+| `/api/datex/status` | GET | Collection status |
+| `/api/datex/collection` | POST | Start/stop collection |
+| `/api/datex/collection/run-now` | POST | Trigger immediate collection |
+| `/api/datex/segments/available` | GET | List available segments |
+| `/api/datex/segments` | POST | Set selected segments |
+| `/api/datex/initialize-segments` | POST | Fetch segments from API |
+| `/api/datex/quality` | GET | Data quality stats |
 
-## Data Storage
+## 🐳 Docker Deployment
 
-- All data is stored locally in `data/commute.db` (SQLite database)
-- DATEX travel times are stored with timestamp, segment ID, and travel time
-- No personal data or addresses are stored
-- Database can be deleted at any time to reset
+```bash
+# Build and run with docker-compose
+docker-compose up -d
 
-## Performance Notes
+# View logs
+docker-compose logs -f
 
-- **Google Maps:** Each analysis makes 17 API calls (one per 15-minute interval)
-- **DATEX:** Polls every 5 minutes, storing ~100-200 measurements per hour
-- **Database Size:** Expect ~1MB per week of DATEX collection
-- **Background Impact:** Minimal CPU/memory usage during collection
+# Stop
+docker-compose down
 
-## Oslo-Specific Notes
+# Or use Docker CLI
+docker build -t oslo-commute-optimizer .
+docker run -d -p 8000:8000 \
+  -v $(pwd)/data:/app/data \
+  -e GOOGLE_MAPS_API_KEY=your_key \
+  --restart unless-stopped \
+  oslo-commute-optimizer
+```
 
-- DATEX covers major routes: E18, E6, Ring 3, and main arteries
-- Most commuter routes in the Oslo area have coverage
-- Segments include areas like Lysaker, Sandvika, Asker, Drammen, Lørenskog
-- For best results, select 2-3 segments that closely match your route
+## 🔐 Production Deployment
 
-## Future Enhancements
+See [DEPLOYMENT.md](DEPLOYMENT.md) for comprehensive production deployment guides including:
+- Nginx reverse proxy setup
+- SSL/TLS configuration with Let's Encrypt
+- Systemd service configuration
+- Security best practices
+- Performance tuning
+- Backup strategies
 
-Potential features to add:
+## 🧪 Testing
 
-- Reverse commute analysis (work → home, afternoon times)
-- Push notifications: "Leave now for optimal commute"
-- Weather correlation analysis
-- Historical prediction accuracy tracking
-- Multi-route comparison
-- Weekly/monthly trend reports
+```bash
+# Run setup test
+python test_setup.py
 
-## License
+# Expected output:
+# ✅ Dependencies: PASS
+# ✅ Imports: PASS
+# ✅ Database: PASS
+# ⚠️  Google Maps: NOT CONFIGURED (optional)
+# ⚠️  DATEX: NOT CONFIGURED (optional)
+```
+
+## 📊 Monitoring
+
+### Health Check
+
+```bash
+curl http://localhost:8000/api/health
+```
+
+Response:
+```json
+{
+  "status": "healthy",
+  "version": "2.0.0",
+  "google_maps_configured": true,
+  "datex_configured": true,
+  "database": "ok",
+  "scheduler_type": "apscheduler"
+}
+```
+
+### System Status
+
+```bash
+curl http://localhost:8000/api/config
+```
+
+## 🛠️ Development
+
+### Prerequisites
+- Python 3.8+
+- pip
+- (Optional) Docker
+
+### Setup Development Environment
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run in debug mode
+DEBUG=true python backend/main.py
+```
+
+### Project Structure
+
+- **Backend:** FastAPI with SQLite
+- **Frontend:** Vanilla HTML/CSS/JS with Chart.js
+- **Scheduling:** APScheduler for background tasks
+- **Containerization:** Docker with multi-stage builds
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Import Errors:**
+```bash
+pip install -r requirements.txt --upgrade
+```
+
+**Port Already in Use:**
+```bash
+PORT=8080 python backend/main.py
+```
+
+**Database Locked:**
+```bash
+pkill -f "python backend/main.py"
+rm data/commute.db-journal
+```
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for more troubleshooting tips.
+
+## 📈 Performance
+
+- **Google Maps:** Each analysis makes 17 API calls (15-min intervals)
+- **DATEX:** Polls every 5 minutes, storing ~100-200 measurements/hour
+- **Database:** ~1MB per week of DATEX collection
+- **Memory:** ~50-100MB typical usage
+- **CPU:** Minimal (<5% on modern hardware)
+
+## 🗺️ Oslo Coverage
+
+DATEX covers major Oslo routes:
+- E18 (Drammen - Oslo)
+- E6 (Romerike - Oslo)
+- Ring 3
+- Rv 4
+- Major arteries (Lysaker, Sandvika, Asker, Lørenskog)
+
+## 📝 License
 
 This project is open source and available under the MIT License.
 
-## Support
+## 🤝 Contributing
 
-For issues, questions, or contributions, please open an issue on the repository.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Credits
+## 📧 Support
 
-- Built with FastAPI, SQLite, and Chart.js
-- Traffic data provided by Statens vegvesen (DATEX II)
-- Predictions powered by Google Maps Directions API
+For issues or questions:
+1. Check the [DEPLOYMENT.md](DEPLOYMENT.md) guide
+2. Review the [CHANGELOG.md](CHANGELOG.md)
+3. Visit the [API docs](http://localhost:8000/docs)
+4. Open an issue on the repository
+
+## 🙏 Credits
+
+- Built with [FastAPI](https://fastapi.tiangolo.com/), [Chart.js](https://www.chartjs.org/), and [APScheduler](https://apscheduler.readthedocs.io/)
+- Traffic data from [Statens vegvesen](https://www.vegvesen.no/) (DATEX II)
+- Predictions from [Google Maps Directions API](https://developers.google.com/maps/documentation/directions)
+
+---
+
+**Version 2.0.0** - See [CHANGELOG.md](CHANGELOG.md) for release notes

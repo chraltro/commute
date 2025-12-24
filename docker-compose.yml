@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  commute-optimizer:
+    build: .
+    container_name: oslo-commute-optimizer
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist database
+      - ./data:/app/data
+      # Mount .env file if it exists
+      - ./.env:/app/.env:ro
+    environment:
+      # Override these in your .env file
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=false
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/api/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

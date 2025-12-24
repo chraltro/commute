@@ -4,14 +4,12 @@ Database module for storing and querying DATEX travel time data.
 import sqlite3
 from datetime import datetime
 from typing import List, Dict, Optional
-import os
-
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'commute.db')
+from config import config
 
 
 def get_connection():
     """Get a database connection."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(config.DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
